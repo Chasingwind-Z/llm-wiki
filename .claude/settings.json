@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 scripts/pending.py || python scripts/pending.py",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "(python3 scripts/sessions_index.py || python scripts/sessions_index.py) >/dev/null 2>&1 || true",
+            "timeout": 60,
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

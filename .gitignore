@@ -1,0 +1,11 @@
+# 本地私有 / 生成物，不入库
+PROGRESS.md
+PROGRESS.archive.md
+.obsidian/
+.claudian/
+archive/
+capture/
+**/.review.json
+.qmd/
+__pycache__/
+.DS_Store
