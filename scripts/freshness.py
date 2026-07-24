@@ -22,6 +22,18 @@ cats = [sys.argv[1]] if len(sys.argv) > 1 else sorted(
     os.path.basename(d.rstrip("/\\")) for d in glob.glob("kb/*/"))
 all_sections = []
 
+# output/ 交付物里被用过的页 = 最强使用信号（比 query 引用更重：真拿去产出了东西）
+used_in_output = {}
+for f in glob.glob("output/**/*.md", recursive=True):
+    try: txt = open(f, encoding="utf-8").read()
+    except OSError: continue
+    m = re.search(r"^date:\s*(\d{4}-\d{2}-\d{2})", txt, re.M)
+    d = m.group(1) if m else datetime.date.fromtimestamp(os.path.getmtime(f)).isoformat()
+    for lk in re.findall(r"\[\[([^\]|]+)", txt):
+        k = lk.strip().lower()
+        if not k.startswith("raw/") and used_in_output.get(k, "") < d:
+            used_in_output[k] = d
+
 for cat in cats:
     root, logf = f"kb/{cat}/wiki", f"kb/{cat}/wiki/log.md"
     # git：每文件最近一次改动日期（一次调用全拿）
@@ -71,12 +83,15 @@ for cat in cats:
         if d is not None: sig.append(d)
         d = days_since(touched.get(p["file"]))
         if d is not None: sig.append(d)
+        d = days_since(used_in_output.get(key))
+        if d is not None: sig.append(d)
         if not sig:
             sig.append((today - datetime.date.fromtimestamp(os.path.getmtime(p["file"]))).days)
         silent = min(sig)
         un = days_since(p["last_confirmed"])
         rows.append(dict(**p, silent=silent, unconfirmed=un if un is not None else -1,
-                         inbound=inbound.get(key, 0), tier=tier(silent)))
+                         inbound=inbound.get(key, 0), tier=tier(silent),
+                         shipped=key in used_in_output))
     candidates = sorted([r for r in rows if r["tier"] == 3 and not r["superseded"]
                          and r["lifecycle"] != "stub-intentional"],
                         key=lambda r: (-r["silent"], r["inbound"]))
@@ -91,6 +106,8 @@ for cat in cats:
         mode_note = ""
     print(f"════════ 分类：{cat}（{len(rows)} 页）════════")
     print("  " + " ｜ ".join(f"{TIERS[t][0]} {counts[t]}" for t in range(4)))
+    shipped_n = sum(1 for r in rows if r["shipped"])
+    if shipped_n: print(f"  📤 其中 {shipped_n} 页被 output/ 的交付物用过（最强使用信号）")
     if mode_note: print("  " + mode_note)
     if candidates:
         print(f"  ❄️ 冷藏候选 TOP{min(10, len(candidates))}（处置由用户决定：归档 / 合并 / 确认仍有用）：")

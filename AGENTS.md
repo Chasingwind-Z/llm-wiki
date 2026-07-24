@@ -24,7 +24,8 @@ agent 把它蒸馏成带可信度标注的互链知识页。按主题分成多�
 ├── AGENTS.md / CLAUDE.md   # 共享 schema（后者为 symlink）
 ├── scripts/                # 共享工具（按分类跑）
 ├── .claude/commands/       # /ingest、/lint（接分类参数）、/distill
-├── capture/                  # 采集缓冲层：chat（网页AI对话）/ clips（网页剪藏）/ drafts（会话蒸馏草稿）
+├── capture/                # 采集缓冲层：chat（网页AI对话）/ clips（网页剪藏）/ drafts（会话蒸馏草稿）
+├── output/                 # 交付层：拿知识产出的成品（PPT大纲/周报/文案）；不进 wiki、不进 lint
 ├── archive/                # 档案层：sessions-index.md（CLI会话索引，脚本生成）等；不进 wiki、不进 lint
 └── kb/
     └── <分类>/             # 一个分类 = 一个独立知识库
@@ -57,6 +58,30 @@ ingest 开始前若 capture 有积压，agent **先提议分拣**（入库→建
 
 `archive/` 是档案层（如 `sessions-index.md`，由 `python3 scripts/sessions_index.py` 生成的
 CLI 会话索引）：只做定位用，agent 不得把档案层内容当知识引用进 wiki 页。
+
+## output 交付层（顶层 `output/`，按需创建）
+
+知识拿去用之后产出的成品：组会 PPT 大纲、周报、博客/小红书文案、面试答题稿等。
+**与 wiki 是两种东西，不许互相污染**：wiki 是面向未来的自己、长期有效、过时走
+supersession；output 面向特定受众和场合、一次性、发完即存档。同一个知识在两边
+写法不同（wiki 写完整推导与前提，交付物按听众裁剪），把交付物版本回填进 wiki
+属于知识退化。
+
+- 文件头三行记来源与用途：
+  ```yaml
+  ---
+  date: YYYY-MM-DD
+  用途: 组会 20 分钟汇报 / 小红书图文 / 周报
+  sources: ["[[页名A]]", "[[页名B]]"]   # 用到的 wiki 页，写页名即可（跨分类通用）
+  ---
+  ```
+- **不参与 lint / health / 断链检查**：它不是知识层，缺 frontmatter 字段、
+  没有 typed link 都正常，agent 不要按 wiki 纪律去规范它。
+- **freshness.py 会读它**：被交付物用过的页 = 最强使用信号（比 query 引用更重，
+  说明真拿去产出了东西），自动计入静默天数并在看板标 📤。所以 `sources` 值得认真填。
+- 产出过程中若形成了**新的知识性判断**（不是措辞裁剪，是真的想明白了什么），
+  按 query 的答案落盘规则问一句要不要存成 synthesis 页——回填的是判断，不是文案。
+- 迭代版本直接在同一文件里改或另存 v2，git 记录足够，不需要额外机制。
 
 **活来源（raw 里的软链接）**：`python3 scripts/link_raw.py <分类> <文件/文件夹>` 可把
 工作台（如 `~/Learning/...`）的文件软链接进 raw/（命名 `linked-<原名>`），原文只维护
