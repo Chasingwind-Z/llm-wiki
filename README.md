@@ -120,6 +120,9 @@ python3 scripts/link_raw.py main ~/笔记目录/某笔记.md    # Windows 加 --
 
 ## Obsidian 插件：装什么、不装什么
 
+> 需要动鼠标的那些步骤（开哪个 vault、Trust 提示、Claudian 登录、Web Clipper 设置）
+> 单独写在 **[docs/obsidian-setup.md](docs/obsidian-setup.md)**——脚本代劳不了 GUI。
+
 `setup_obsidian.py` 已自动配好两个，够用是常态：
 
 - **Claudian**：把 Claude Code 嵌进侧边栏，左边聊、右边实时看它改了什么页。
@@ -151,8 +154,10 @@ python3 scripts/link_raw.py main ~/笔记目录/某笔记.md    # Windows 加 --
 - **桌面右键存入**：macOS 跑 `bash scripts/setup-quick-action.sh`（Finder 快速操作）；
   Windows 跑 `python scripts/setup_quick_action_win.py`（写入"发送到"菜单，右键
   文件即可选库存入。此项在 Windows 上待实测，欢迎反馈）。
-- **网页剪藏**：Obsidian Web Clipper 扩展，设置里 Vault 选仓库根、保存位置填
-  `capture/clips`。
+- **网页剪藏**：Obsidian Web Clipper 扩展，模板设置里 Vault 填仓库根 vault 的名字、
+  Path 填 `capture/clips`。**Vault 字段千万别留空**——开了多个嵌套 vault 时它会写进
+  「上次打开的那个」，剪藏文件就落进某个分类库了。详见
+  [docs/obsidian-setup.md](docs/obsidian-setup.md)。
 - **会话蒸馏**：CLI 里聊出干货后输 `/distill`，agent 提取要点、你确认、
   草稿进 `capture/drafts/`。
 - **微信**：见下节。
