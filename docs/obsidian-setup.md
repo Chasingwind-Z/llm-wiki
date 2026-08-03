@@ -88,7 +88,7 @@ Clipper 会写进**你最后打开的那个 vault**——通常是某个 `kb/<�
 **所以 Vault 字段必须显式填写。** 这是嵌套 vault 唯一的实质代价。
 
 另外注意 **Path 是相对 vault 根的**，填 `capture/clips`，不要填
-`/Users/你/…/capture/clips` 这样的绝对路径，会失败。
+`C:\kb\capture\clips` 或 `/home/you/kb/capture/clips` 这样的绝对路径，会失败。
 
 ### 验证
 
